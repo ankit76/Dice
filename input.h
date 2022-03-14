@@ -74,6 +74,7 @@ private:
     & algorithm                               \
     & outputlevel                             \
     & printBestDeterminants                   \
+    & writeBestDeterminants                   \
     & extrapolate                             \
     & extrapolationFactor                     \
     & enforceSeniority                        \
@@ -136,6 +137,7 @@ public:
   int algorithm;
   int outputlevel;
   int printBestDeterminants;
+  int writeBestDeterminants;
   bool extrapolate;
   double extrapolationFactor;
   bool enforceSeniority;
