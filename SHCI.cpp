@@ -311,7 +311,7 @@ int main(int argc, char* argv[]) {
       }
     }
     pout << Dets[d] << " Given HF Energy:  "
-       << format("%18.10f") % (Dets.at(0).Energy(I1, I2, coreE)) << endl;
+       << format("%18.10f") % (Dets.at(d).Energy(I1, I2, coreE)) << endl;
   }
   // TODO Make this work with MPI and not print one set from each processor
 
@@ -357,19 +357,26 @@ int main(int argc, char* argv[]) {
  
     // this function is only used for uhf-like dets, orbitals are ordered abab...
     if (commrank == 0) {
-      if (schd.writeBestDeterminants > 0) {
+      if (schd.writeBestDeterminantsUHF > 0) {
         int num = min(schd.writeBestDeterminants, static_cast<int>(DetsSize));
         int nspatorbs = Determinant::norbs/2;
-        ofstream fout = ofstream("dets.bin", ios::binary);
-        fout.write((char*) &num, sizeof(int));
-        fout.write((char*) &nspatorbs, sizeof(int));
         for (int root = 0; root < schd.nroots; root++) {
+          string fname;
+          if (root == 0) fname = "dets.bin";
+          else {
+            fname = "dets_";
+            fname.append(to_string(root));
+            fname.append(".bin");
+          }
+          ofstream fout = ofstream(fname, ios::binary);
+          fout.write((char*) &num, sizeof(int));
+          fout.write((char*) &nspatorbs, sizeof(int));
           MatrixXx prevci = 1. * ci[root];
+          std::vector<size_t> idx(static_cast<int>(DetsSize));
+          std::iota(idx.begin(), idx.end(), 0);
+          std::sort(idx.begin(), idx.end(), [&prevci](size_t i1, size_t i2){return abs(prevci(i1, 0)) > abs(prevci(i2, 0));});
           for (int i = 0; i < num; i++) {
-            compAbs comp;
-            int m = distance(
-                &prevci(0, 0),
-                max_element(&prevci(0, 0), &prevci(0, 0) + prevci.rows(), comp));
+            int m = idx[i];
             double parity = getParityForDiceToAlphaBeta(SHMDets[m]);
             double wciCoeff = parity * std::real(prevci(m, 0));
             fout.write((char*) &wciCoeff, sizeof(double));
@@ -388,10 +395,51 @@ int main(int argc, char* argv[]) {
                 detocc = '2';
               fout.write((char*) &detocc, sizeof(char));
             }
-            prevci(m, 0) = 0.0;
           }
+          fout.close();
         }
-        fout.close();
+      }
+      if (schd.writeBestDeterminants > 0) {
+        int num = min(schd.writeBestDeterminants, static_cast<int>(DetsSize));
+        int nspatorbs = Determinant::norbs/2;
+        int nspinorbs = Determinant::norbs;
+        for (int root = 0; root < schd.nroots; root++) {
+          string fname;
+          if (root == 0) fname = "dets.bin";
+          else {
+            fname = "dets_";
+            fname.append(to_string(root));
+            fname.append(".bin");
+          }
+          ofstream fout = ofstream(fname, ios::binary);
+          fout.write((char*) &num, sizeof(int));
+          fout.write((char*) &nspinorbs, sizeof(int));
+          MatrixXx prevci = 1. * ci[root];
+          std::vector<size_t> idx(static_cast<int>(DetsSize));
+          std::iota(idx.begin(), idx.end(), 0);
+          std::sort(idx.begin(), idx.end(), [&prevci](size_t i1, size_t i2){return abs(prevci(i1, 0)) > abs(prevci(i2, 0));});
+          for (int i = 0; i < num; i++) {
+            int m = idx[i];
+            double wciCoeff = std::real(prevci(m, 0));
+            fout.write((char*) &wciCoeff, sizeof(double));
+            Determinant wdet = SHMDets[m];
+            char det[norbs];
+            wdet.getRepArray(det);
+            for (int i = 0; i < nspatorbs; i++) {
+              char detocc;
+              if (det[2 * i] == false && det[2 * i + 1] == false)
+                detocc = '0';
+              else if (det[2 * i] == true && det[2 * i + 1] == false)
+                detocc = 'a';
+              else if (det[2 * i] == false && det[2 * i + 1] == true)
+                detocc = 'b';
+              else if (det[2 * i] == true && det[2 * i + 1] == true)
+                detocc = '2';
+              fout.write((char*) &detocc, sizeof(char));
+            }
+          }
+          fout.close();
+        }
       }
     }
     

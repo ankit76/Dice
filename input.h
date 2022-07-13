@@ -75,6 +75,7 @@ private:
     & outputlevel                             \
     & printBestDeterminants                   \
     & writeBestDeterminants                   \
+    & writeBestDeterminantsUHF                \
     & extrapolate                             \
     & extrapolationFactor                     \
     & enforceSeniority                        \
@@ -138,6 +139,7 @@ public:
   int outputlevel;
   int printBestDeterminants;
   int writeBestDeterminants;
+  int writeBestDeterminantsUHF;
   bool extrapolate;
   double extrapolationFactor;
   bool enforceSeniority;

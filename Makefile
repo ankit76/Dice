@@ -3,12 +3,13 @@
 ##########################
 
 USE_MPI = yes
-USE_OMP = no
+USE_OMP = yes
 USE_INTEL = no 
 USING_OSX = no
 
-EIGEN=${EIGEN_ROOT}
+EIGEN=/projects/ilsa8974/apps/eigen/
 BOOST=${BOOST_ROOT}
+#BOOST=/projects/anma2640/boost_1_66_0/
 
 #########################################
 # DO NOT EDIT ANYTHING BELOW THIS POINT #
@@ -18,9 +19,9 @@ git_commit=`git rev-parse HEAD`
 git_branch=`git branch | grep "^\*" | sed 's/^..//'`
 export VERSION_FLAGS=-Dgit_commit="\"$(git_commit)\"" -Dgit_branch="\"$(git_branch)\""
 
-FLAGS  = -std=c++11 -g -w -O3 -I${EIGEN} -I${BOOST}/include $(VERSION_FLAGS)
-DFLAGS = -std=c++11 -g -w -O3 -I${EIGEN} -I${BOOST}/include $(VERSION_FLAGS) -DComplex
-LFLAGS = -L${BOOST}/lib -lboost_serialization
+FLAGS  = -std=c++11 -g -w -O3 -I${EIGEN} -I${BOOST} -I${BOOST}/include $(VERSION_FLAGS)
+DFLAGS = -std=c++11 -g -w -O3 -I${EIGEN} -I${BOOST} -I${BOOST}/include $(VERSION_FLAGS) -DComplex
+LFLAGS = -L${BOOST}/stage/lib -L${BOOST}/lib -lboost_serialization
 
 ifeq ($(USE_INTEL), yes)
 	ifeq ($(USE_OMP), yes)
@@ -81,7 +82,7 @@ OBJ_gtensorft+= obj_z/GTensorFT.o  obj_z/SHCIbasics.o obj_z/Determinants.o obj_z
 OBJ_gtensorft2+=obj_z/GTensorFT2.o obj_z/SHCIbasics.o obj_z/Determinants.o obj_z/integral.o obj_z/input.o obj_z/Davidson.o obj_z/new_anglib.o obj_z/SOChelper.o obj_z/SHCIgetdeterminants.o obj_z/SHCIsampledeterminants.o obj_z/SHCIrdm.o obj_z/SHCISortMpiUtils.o obj_z/SHCImakeHamiltonian.o
 
 OBJ_Dice  +=obj/SHCI.o   obj/SHCIbasics.o   obj/Determinants.o   obj/integral.o   obj/input.o   obj/Davidson.o                                        obj/SHCIgetdeterminants.o   obj/SHCIsampledeterminants.o   obj/SHCIrdm.o   obj/SHCISortMpiUtils.o   obj/SHCImakeHamiltonian.o   obj/SHCIshm.o obj/LCC.o     obj/symmetry.o
-OBJ_ZDice2+=obj_z/SHCI.o obj_z/SHCIbasics.o obj_z/Determinants.o obj_z/integral.o obj_z/input.o obj_z/Davidson.o obj_z/SOChelper.o obj_z/new_anglib.o obj_z/SHCIgetdeterminants.o obj_z/SHCIsampledeterminants.o obj_z/SHCIrdm.o obj_z/SHCISortMpiUtils.o obj_z/SHCImakeHamiltonian.o obj_z/SHCIshm.o obj_z/LCC.o obj_z/symmetry.o
+OBJ_ZDice2+=obj_z/SHCI.o obj_z/SHCIbasics.o obj_z/Determinants.o obj_z/integral.o obj_z/input.o obj_z/Davidson.o obj_z/SOChelper.o obj_z/new_anglib.o obj_z/SHCIgetdeterminants.o obj_z/SHCIsampledeterminants.o obj_z/SHCIrdm.o obj_z/SHCISortMpiUtils.o obj_z/SHCImakeHamiltonian.o obj_z/SHCIshm.o obj_z/LCC.o obj_z/symmetry.o obj_z/SHCImake4cHamiltonian.o
 OBJ_ZSHCI +=obj_z/SHCI.o obj_z/SHCIbasics.o obj_z/Determinants.o obj_z/integral.o obj_z/input.o obj_z/Davidson.o obj_z/SOChelper.o obj_z/new_anglib.o obj_z/SHCIgetdeterminants.o obj_z/SHCIsampledeterminants.o obj_z/SHCIrdm.o obj_z/SHCISortMpiUtils.o obj_z/SHCImake4cHamiltonian.o obj_z/SHCIshm.o obj_z/LCC.o obj_z/symmetry.o
 
 OBJ_forcyrus+=   obj/forCyrus.o    obj/SHCIbasics.o obj/Determinants.o obj/integral.o obj/input.o obj/Davidson.o obj/SHCIgetdeterminants.o  obj/SHCIsampledeterminants.o obj/SHCIrdm.o obj/SHCISortMpiUtils.o obj/SHCImakeHamiltonian.o
